@@ -1,250 +1,315 @@
-#include<stdio.h>
+#include <stdio.h>
 #include<conio.h>
-#include<windows.h>
+#include<string.h>
 
-int getkey();
-void display(int,int,int,int[]);
-void calendar(int,int);
+#include<dos.h>
+#define amt 300
 
-//-------------- GOTO function definition ----------------------
-void gotoxy(int x,int y)
+FILE *fp;
+long int size;
+struct donor
 {
-    COORD coord;
-    coord.X=x;
-    coord.Y=y;
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
-}
+char name[25];
+int age;
+char address1[30];
+char address2[30];
+char city[20];
+char phn[11];
+char bloodgrp[4];
+char email[40];
+int id;
+};
+struct donor b; //declaration of structure
 
-//------------ Change color -------------------
-void SetColor(int ForgC)
+void putdonor(); //store the data in file
+void getdonor();  //display data
+void donorbyid();
+void donorbycity();
+void calamt();    //calculate sum to be paid to donor
+void menu();      //display menu
+void creden();    //display credentials
+
+void main()
 {
-     WORD wColor;
-                          
-     HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-     CONSOLE_SCREEN_BUFFER_INFO csbi;
+int i;
+i=1;
+size=sizeof(b); //finding size of structure
 
-     if(GetConsoleScreenBufferInfo(hStdOut, &csbi))
-     {
-                     
-          wColor = (csbi.wAttributes & 0xF0) + (ForgC & 0x0F);
-          SetConsoleTextAttribute(hStdOut, wColor);
-     }
-     return;
-}
-
-
-char *month[]={"January","February","March","April","May","June","July","August","September","October","November","December"};
-char *week[]={"Mon","Tue","Wed","Thu","Fri","Sat","Sun"};
-
-int main()
+while(i<=7)
 {
-    int nmonth,nyr,ch;
-    enteryear:
-    while(1)
-    {
-        printf("Enter year and month(number):" );
-        scanf("%d%d",&nyr,&nmonth);
-        if(nyr<1945)
-        {
-            
-            printf("\n\t Please enter year above 1945\n");
-            continue;
-        }
-        else
-        {
-           
-            calendar(nyr,nmonth);
-        }
-        while(1)
-        {
-        gotoxy(20,20);printf("(*) Use LEFT, RIGHT, UP and DOWN arrow.");
-        gotoxy(20,22);printf("(*) Press P to go to particular year and month.");
-        gotoxy(20,24);printf("(*) Press ESC to Exit.");
-        ch=getkey();
-        switch(ch)
-        {
-        case 80: //-------- DOWN ARROW -----------
-              
-                if(nmonth==12)
-                {
-                    
-                     nmonth=1;
-                     nyr++;
-                }
-                else
-                {
-                    nmonth++;
-                }
-                calendar(nyr,nmonth);
-                break;
-        case 77: //-------- RIGHT ARROW ----------
-           
-                nyr++;
-                calendar(nyr,nmonth);
-                break;
-        case 72: //------- UP ARROW -------------
-            
-                if(nmonth==1)
-                {
-                    
-                    nyr--;
-                    nmonth=12;
-                }
-                else
-                    nmonth--;
-                calendar(nyr,nmonth);
-                break;
-        case 75: //-------- LEFT ARROW ----------
-            //Decreasing year
-                if(nyr==1945)
-                {
-                    
-                  gotoxy(15,2);printf("Year below 1945 not available");
-                }
-                else
-                {
-                    nyr--;
-                    calendar(nyr,nmonth);
-                }
-
-                break;
-        case 27: //--------- ESC KEY ------------
-            //Exit program
-                system("cls");
-                gotoxy(50,14);printf("Exiting program.\n\n\n\n\n");
-                exit(0);
-        case 112://---------- p KEY ------------
-            
-                system("cls");
-                goto enteryear;
-        }
-        }
-        break;
-
-    }
-    getch();
-    return 0;
-}
-
-
-//============== DISPLAYING THE  CALENDAR ===================
-void display(int nyr,int nmonth,int tdays,int days[])
+printf("\n\n\n\n\n\n\n\n\t\t\t\t Initializing");
+if(i<7)
 {
-    int i,j,pos;
-    SetColor(12); 
-    gotoxy(56,6);printf("%s %d",month[nmonth-1],nyr);
-    for(i=0,pos=30;i<7;i++,pos+=10)
-    {
-         if(i==6)
-            SetColor(9); 
-         else
-            SetColor(10);  
-        gotoxy(pos,8);printf("%s",week[i]);
-    }
 
-    SetColor(15); 
-
-   tdays++; 
-    if(tdays==0 || tdays==7)
-        pos=91; 
-    if(tdays==1)
-        pos=31; 
-    if(tdays==2)
-        pos=41;  
-    if(tdays==3)
-        pos=51;  
-    if(tdays==4)
-        pos=61;  
-    if(tdays==5)
-        pos=71;  
-    if(tdays==6)
-        pos=81;  
-
-    for(i=0,j=10,pos;i<days[nmonth-1];i++,pos+=10)
-    {
-        if(pos==91)
-            SetColor(8); 
-        else
-            SetColor(7); 
-
-        gotoxy(pos,j);printf("%d",i+1);
-        if(pos==91)
-        {
-            pos=21; 
-            j++;  
-        }
-    }
-
-    SetColor(5); 
-
-    //Drawing horizontal line
-    for(i=22;i<102;i++)
-    {
-        gotoxy(i,4);printf("%c",196);
-        gotoxy(i,17);printf("%c",196);
-    }
-
-    //Drawing all the corner of the rectangle
-    gotoxy(21,4);printf("%c",218);
-    gotoxy(102,4);printf("%c",191);
-    gotoxy(21,17);printf("%c",192);
-    gotoxy(102,17);printf("%c",217);
-
-    //Drawing vertical line
-    for(i=5;i<17;i++)
-    {
-        gotoxy(21,i);printf("%c",179);
-        gotoxy(102,i);printf("%c",179);
-    }
-
-    SetColor(11); 
-    gotoxy(24,11);printf("%c",174);
-    gotoxy(98,11);printf("%c",175);
 
 }
-
-//==============  ARROW KEY ===============
-int getkey()
-{
-    int ch;
-    ch=getch();
-     if(ch==0)
-    {
-        printf("zero");
-        ch=getch();
-
-        return ch;
-    }
-    return ch;
+i++;
 }
 
-//============ Calculating ====================
-void calendar(int nyr,int nmonth)
+printf(".");
+
+printf(".");
+
+printf(".");
+
+
+
+menu();
+getch();
+}
+
+void putdonor()
 {
-    int days[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-    int tdays=0,k,myear;
-    system("cls");
-    myear=nyr-1; 
-            if(myear>=1945)
-            {
-                for(k=1945;k<=myear;k++)
-                {
-                    if(k%4==0) 
-                        tdays=tdays+366;  
-                    else 
-                        tdays=tdays+365;  
-                }
-            }
+char a;
 
-            if(nyr%4==0)
-                days[1]=29; 
-                days[1]=28; 
-            for(k=0;k<(nmonth-1);k++)
-            {
+fp=fopen("BDONOR.DAT","wb+"); //opening a binary file
+if(fp==NULL)
+{
+puts("Cannot Open File");
+exit(0);
+}
+fseek(fp,0,SEEK_END); //putting the pointer at the end of the file
+do
+{
 
-                tdays=tdays+days[k]; 
-            }
+fflush(stdin);
+printf("\n\tEnter Name : ");
+gets(b.name);
+printf("\n\tEnter Your Age : ");
+scanf("%d",&b.age);
+fflush(stdin);
+printf("\n\tEnter Your Donor ID : ");
+scanf("%d",&b.id);
+printf("\n\tEnter Address Line 1 : ");
+fflush(stdin);
+gets(b.address1);
+printf("\n\tEnter Address Line 2 : ");
+gets(b.address2);
+printf("\n\tEnter City : ");
+gets(b.city);
+printf("\n\tEnter Blood Group : ");
+gets(b.bloodgrp);
+printf("\n\tEnter Your 10 Digit Moblie Number : ");
+scanf("%s",b.phn);
+fflush(stdin);
+printf("\n\tEnter Your Email : ");
+scanf("%s",b.email);
+fwrite(&b,size,1,fp);
+printf("\n\tDo You Want To Add Another Data\n Enter(Y / N)");
+fflush(stdin);
+scanf("%c",&a);
+}while(a=='Y'||a=='y');
+fclose(fp);
 
-            tdays=tdays%7; 
-            display(nyr,nmonth,tdays,days); 
+menu();
+}
+
+void getdonor()
+{
+char bld[4];
+char a='y';
+
+fp=fopen("BDONOR.DAT","rb");
+if(fp==NULL)
+{
+puts("Cannot Open File");
+exit(0);
+}
+fflush(stdin);
+printf("\n\tEnter The Blood Group : ");
+scanf("%s",bld);
+rewind(fp);
+
+while(fread(&b,size,1,fp)==1)
+{
+if(a=='Y'||a=='y')
+{
+if(strcmp(b.bloodgrp,bld)==0) //matching the blood group required with the one's present in Database
+{
+
+printf("\n\tName : %s \n\tDonor Id : %d \n\tAge : %d \n\tAddress Line : %s \n\tAddress Line 2 : %s \n\tCity : %s \n\tPhone No : %s \n\tEmail : %s \n\tBlood Grouo : %s \n\n",b.name,b.id,b.age,b.address1,b.address2,b.city,b.phn,b.email,b.bloodgrp);
+printf("\n\n\tSee More(Y/N)");
+fflush(stdin);
+scanf("%c",&a);
+}
+}
+}
+if(a=='n'||a=='N')
+{
+fclose(fp);
+menu();
+}
+else
+{
+printf("\n\n\n\t\t No More Records Found......!!!");
+printf("\n\nBack to Main Menu in 7 Seconds");
+
+fclose(fp);
+menu();
+}
+}
+
+void menu()
+{
+int choice;
+
+printf("\n\n\t\t\tBLOOD DONOR DATABSE \n\n\n");
+printf("\t1 Add a new entry\n\n");
+printf("\t2 Search by Blood Group \n\n");
+printf("\t3 Search by Donor Id\n\n");
+printf("\t4 Search by City\n\n");
+printf("\t5 Calculate the amount to be paid to Donor\n\n");
+printf("\t6 Credentials\n\n");
+printf("\t7 Exit the program\n\n");
+printf("\t Your choice : ");
+
+
+scanf("%d",&choice);
+switch(choice)
+{
+case 1 : putdonor();
+	 break;
+case 2 : getdonor();
+	 break;
+case 3 : donorbyid();
+	 break;
+case 4 : donorbycity();
+	 break;
+case 5 : calamt();
+	 break;
+case 6 : creden();
+	 break;
+case 7 : exit(0);
+
+default :
+	  printf("\n\n\t\tYou have entered wrong choce....!!!");
+
+	  menu();
+}
+}
+
+void calamt()
+{
+float unit,sum;
+
+printf("\n\n\tEnter the unit donated : ");
+scanf("%f",&unit);
+sum=unit*amt; //Calculating the amount to be paid
+printf("\n\tAmount paid per unit = Rs.%d\n\n",amt);
+printf("\n\tTotal Amount to be paid = Rs.%f\n",sum);
+printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBack to Main Menu in 7 seconds");
+
+
+menu();
+}
+
+void creden()
+{
+
+printf("\n\n\t\t\t\tBLOOD DONOR DATABASE\n\n\n");
+printf("\t\t\tTeacher Incharge : ABDUL AHAD\n");
+printf("\n\n\t\tTeam Lead : ZAINA AHAD\n");
+printf("\n\n\t\tTeam Members : \n");
+printf("\n\t\t\tAKASH\n\t\t\tGARG\n");
+printf("\t\t\tAZBAQ\n\t\t\tKHAN\n");
+printf("\n\n\nBack to Main Menu in 10 seconds");
+
+
+menu();
+}
+
+void donorbyid()
+{
+int id;
+char a='y';
+
+fp=fopen("BDONOR.DAT","rb");
+if(fp==NULL)
+{
+puts("Cannot Open File");
+exit(0);
+}
+fflush(stdin);
+printf("\n\tEnter the Donor Id : ");
+scanf("%d",&id);
+rewind(fp);
+
+while(fread(&b,size,1,fp)==1)
+{
+if(a=='Y'||a=='y')
+{
+if(b.id==id)
+{
+printf("\n\tName : %s \n\tdonor Id : %d \n\tAge : %d \n\tAddress Line 1 : %s \n\tCity : %s \n\tPhone No : %s \n\tEmail :%s \n\tBlood Group : %s \n\n",b.name,b.id,b.age,b.address1,b.address2,b.city,b.phn,b.email,b.bloodgrp);
+printf("\n\n\tSee More(Y / N)");
+fflush(stdin);
+scanf("%c",&a);
+}
+}
+}
+if(a=='n'||a=='N')
+{
+fclose(fp);
+menu();
+}
+else
+{
+printf("\n\n\n\t\t NO MORE RECORDS FOUND....!!!");
+printf("\n\n Back to Main Menu in 7 seconds");
+
+fclose(fp);
+menu();
+}
+}
+
+void donorbycity()
+{
+char city[20];
+char a='y';
+
+fp=fopen("BDONOR.DAT","rb");
+if(fp==NULL)
+{
+puts("Cannot Open File");
+exit(0);
+}
+fflush(stdin);
+printf("\n\tEnter the City : ");
+scanf("%s",&city);
+rewind(fp);
+
+while(fread(&b,size,1,fp)==1)
+{
+if(a=='Y'||a=='y')
+{
+if((strcmp(b.city,city))==0) //Matching the Bloodgroup required with the one's present in Databse
+{
+printf("\n\tName : %s \n\tdonor Id : %d \n\tAge : %d \n\tAddress Line 1 : %s \n\tCity : %s \n\tPhone No : %s \n\tEmail :%s \n\tBlood Group : %s \n\n",b.name,b.id,b.age,b.address1,b.address2,b.city,b.phn,b.email,b.bloodgrp);
+printf("\n\n\tSee More(Y /N)");
+fflush(stdin);
+scanf("%c",&a);
+}
+}
+}
+if(a=='n'||a=='N')
+{
+fclose(fp);
+menu();
+}
+else
+{
+printf("\n\n\n\t\t NO MORE RECORDS FOUND....!!!");
+printf("\n\n Back to Main Menu in 7 seconds");
+
+fclose(fp);
+menu();
+}
+}
+
+//floating point Emulator
+void linkfloat()
+{
+float a=0,*b;
+b=&a;
+a=*b;
 }
